@@ -26,7 +26,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences("mockgps", MODE_PRIVATE);
-        Configuration.getInstance().setUserAgentValue(getPackageName());
+        Configuration.getInstance().setUserAgentValue("MockGPS-Personal/1.0");
         setContentView(R.layout.activity_main);
 
         map = findViewById(R.id.map);
@@ -63,7 +63,14 @@ public class MainActivity extends AppCompatActivity {
         toggleBtn = findViewById(R.id.toggleBtn);
         statusText = findViewById(R.id.statusText);
 
-        map.setTileSource(TileSourceFactory.MAPNIK);
+        // OSM ke volunteer server block karte hain, isliye CARTO ke free tiles use kar rahe hain
+        map.setTileSource(new XYTileSource("CartoVoyager", 1, 20, 256, ".png",
+                new String[]{
+                        "https://a.basemaps.cartocdn.com/rastertiles/voyager/",
+                        "https://b.basemaps.cartocdn.com/rastertiles/voyager/",
+                        "https://c.basemaps.cartocdn.com/rastertiles/voyager/",
+                        "https://d.basemaps.cartocdn.com/rastertiles/voyager/"},
+                "© OpenStreetMap contributors © CARTO"));
         map.setMultiTouchControls(true);
         map.getController().setZoom(15.0);
 
@@ -238,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                 URL url = new URL("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="
                         + URLEncoder.encode(q, "UTF-8"));
                 HttpURLConnection c = (HttpURLConnection) url.openConnection();
-                c.setRequestProperty("User-Agent", getPackageName() + "/1.0");
+                c.setRequestProperty("User-Agent", "MockGPS-Personal/1.0 (Android)");
                 c.setConnectTimeout(10000);
                 c.setReadTimeout(10000);
                 StringBuilder sb = new StringBuilder();
